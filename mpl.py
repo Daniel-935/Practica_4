@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -27,9 +26,9 @@ class NeuralNet(nn.Module):
     def forward(self, inputs):
         #*Comienza por recorrer todas las capas ocultas y usar la funcion de activacion con el fin de obtener una prediccion
         #*Inicia con la capa de entrada y recorre la lista creada de torch, se va a usar la funcion sigmoide
-        prediction = torch.sigmoid(self.capaInput(inputs))
+        prediction = torch.softmax(self.capaInput(inputs), dim=1)
         for capa in self.capasOcultas:
-            prediction = torch.sigmoid(capa(prediction))
+            prediction = torch.softmax(capa(prediction), dim=1)
         #*Obtiene la prediccion final (capa de salida)
-        prediction = torch.sigmoid(self.capaOutput(prediction))
+        prediction = torch.softmax(self.capaOutput(prediction), dim=1)
         return prediction
