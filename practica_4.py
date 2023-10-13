@@ -29,21 +29,48 @@ def readFile(f):
 #*Leemos el archivo
 inputs, outputs, inputTrain, inputTest, outputTrain, outputTest = readFile("irisbin.csv")
 
-print(inputTest)
-
 #*Variables para guardar los tensores de la red neuronal
 #*Los tensores se van a configurar para que los ejecute el cpu
 tenInputTrain = torch.from_numpy(inputTrain.values).float().to("cpu")
 tenInputTest = torch.from_numpy(inputTest.values).float().to("cpu")
-tenOutputTrain = torch.from_numpy(outputTrain.values).int().to("cpu")
-tenOutputTest = torch.from_numpy(outputTest.values).int().to("cpu")
-
-#!Funcion de perdida diseñada para este problema en especifico
-def loss(predic, esperado):
-    #*Usamos el error cuadratico medio
-    return torch.mean((predic - esperado)**2)
+tenOutputTrain = torch.from_numpy(outputTrain.values).float().to("cpu")
+tenOutputTest = torch.from_numpy(outputTest.values).float().to("cpu")
 
 #!Creamos las variables que seran utilizadas para la red neuronal
 learningRate = 0.001
-epochs = 1000
+epochs = 5000
+#*Funcion de perdida
+lossFun = nn.BCELoss()
 
+#*Funcion para convertir nuestros output donde -1=0 y 1=1
+def transformOutput(output):
+    #*Recorre todo el tensor y convierte cada output con el valor correspondiente
+    return torch.where(output == -1, torch.tensor(0.0), torch.tensor(1.0))
+
+#*Transforma la prediccion en el output que esperamos
+def trasnformPredict(output):
+    return torch.where(output > 0.5, torch.tensor(1.0), torch.tensor(-1.0))
+
+#!Creamos nuestro objeto de la red neuronal y empieza el entrenamiento
+
+myNet = NeuralNet(4, 3, 3, 3)
+
+#*Optimizador para calcular el gradiente descendiente
+optim = torch.optim.Adam(params=myNet.parameters(), lr=learningRate)
+
+print(f"Comienza el entrenamiento con {epochs} epocas...")
+for i in range(epochs):
+    #*Se obtiene una prediccion en base al tensor de entradas de entrenamiento
+    prediction = myNet(tenInputTrain)
+    #*Calcula la funcion de perdida
+    #*Convierte nuestro output esperado a terminos binarios, esto con el fin
+    #* de que la red neuronal nos de valores esperados
+    perdida = lossFun(prediction, transformOutput(tenOutputTrain))
+    #*Hace el backpropagation y con el optimizador se recalculan los pesos
+    perdida.backward()
+    optim.step()
+    optim.zero_grad()
+
+#!Se realiza el test despues del entrenamiento
+prediction = myNet(tenInputTest)
+print(f"Tensor obtenido:\n\n {trasnformPredict(prediction)}\nTensor esperado:\n\n {tenOutputTest}")

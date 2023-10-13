@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 class NeuralNet(nn.Module):
 
     #*El constructor toma el numero de inputs, capas, neuronas y salias y el nombre del archivo para tomar las entradas y salidas
-    def __init__(self, noInputs, noCapas, noNeuronas, noOutput, file):
+    def __init__(self, noInputs, noCapas, noNeuronas, noOutput):
         #*Llama a la clase padre para hacer nuestro modelo de la red neuronal
         super(NeuralNet, self).__init__()
 
