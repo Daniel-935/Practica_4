@@ -65,6 +65,19 @@ for i in range(epochs):
     #*Convierte nuestro output esperado a terminos binarios, esto con el fin
     #* de que la red neuronal nos de valores esperados
     perdida = lossFun(prediction, transformOutput(tenOutputTrain))
+    #*Cada 200 epocas imprime la precision durante el entrenamiento
+    if i % 200 == 0:
+        #!Convierte los tensores a arrays de numpy para calcular la precision
+        predictNump = trasnformPredict(prediction).cpu().detach().numpy()
+        outputNump = transformOutput(tenOutputTrain).cpu().detach().numpy()
+        #*Se hace la suma de los elementos para obtener un array con las predicciones correctas
+        buenasPred = np.sum(predictNump == outputNump)
+        #*Obtenemos el total de outputs
+        lenOutput = len(outputNump)
+        #*Calcula la precision diviendo el numero de outputs esperado con el numero de predicciones buenas
+        accuracy = buenasPred / lenOutput
+        #*Imprimimos en porcentaje
+        print(f"Precision de la red en la epoca {i}: {accuracy*100:.2f}%")
     #*Hace el backpropagation y con el optimizador se recalculan los pesos
     perdida.backward()
     optim.step()
